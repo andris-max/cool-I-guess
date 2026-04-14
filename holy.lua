@@ -2,7 +2,7 @@
 local Settings = {
     Enabled = false,
     TriggerKey = Enum.KeyCode.E,
-    Delay = 0.01 -- A tiny delay can prevent the game from flagging instant clicks
+    Delay = 0.001 -- A tiny delay can prevent the game from flagging instant clicks
 }
 
 -- // Variables \\ --

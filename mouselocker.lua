@@ -97,7 +97,7 @@ getgenv().ExunysDeveloperAimbot = {
 
 		TeamCheck = false,
 		AliveCheck = true,
-		WallCheck = true, -- Changed to true for the Visibility Check
+		WallCheck = false, -- Disabled visibility check
 
 		OffsetToMoveDirection = false,
 		OffsetIncrement = 15,
@@ -105,11 +105,11 @@ getgenv().ExunysDeveloperAimbot = {
 		Sensitivity = 0, -- Animation length (in seconds) before fully locking onto target
 		Sensitivity2 = 1, -- mousemoverel Sensitivity
 
-		LockMode = 2, -- Changed to 2: Uses mousemoverel instead of camera
+		LockMode = 2, -- Uses mousemoverel instead of camera
 		LockPart = "Head", -- Body part to lock on
 
-		TriggerKey = Enum.UserInputType.MouseButton2,
-		Toggle = false
+		TriggerKey = Enum.KeyCode.E, -- Changed to E key
+		Toggle = false -- Keeps it as "hold to aim"
 	},
 
 	Triggerbot = {
@@ -134,10 +134,10 @@ getgenv().ExunysDeveloperAimbot = {
 	},
 
 	FOVSettings = {
-		Enabled = true, -- Keeps targeting restricted to the mouse area
+		Enabled = true, 
 		Visible = true,
 
-		Radius = 180, -- Lower this number if you want the "closest to mouse" area to be stricter
+		Radius = 180, 
 		NumSides = 60,
 
 		Thickness = 1,

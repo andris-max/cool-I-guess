@@ -1,13 +1,10 @@
 --[[
-	Universal Aimbot Module by Exunys © CC0 1.0 Universal (2023)
-	Optimized for Performance and Accuracy
+	Universal Aimbot Module - Optimized
 ]]
 
 --// Luraph Macros
 if LPH_OBFUSCATED == nil then
-	LPH_NO_VIRTUALIZE = function(...)
-		return ...
-	end
+	LPH_NO_VIRTUALIZE = function(...) return ... end
 end
 
 --// Cache
@@ -16,24 +13,17 @@ local getrawmetatable, pcall, next, tick, getgenv = getrawmetatable, pcall, next
 local Vector2new, Vector3zero, CFramenew, Color3fromRGB, Color3fromHSV, Drawingnew, TweenInfonew = Vector2.new, Vector3.zero, CFrame.new, Color3.fromRGB, Color3.fromHSV, Drawing and Drawing.new, TweenInfo.new
 local mousemoverel, mousemoveabs, tablefind, tableremove, stringlower, stringsub, mathclamp = mousemoverel or (Input and Input.MouseMove), mousemoveabs, table.find, table.remove, string.lower, string.sub, math.clamp
 local mouse1press, mouse1release, taskwait = mouse1press, mouse1release, task.wait
-local clonefunction, cloneref = clonefunction or LPH_NO_VIRTUALIZE(function(...)
-	return ...
-end), cloneref or LPH_NO_VIRTUALIZE(function(...)
-	return ...
-end)
+local clonefunction, cloneref = clonefunction or LPH_NO_VIRTUALIZE(function(...) return ... end), cloneref or LPH_NO_VIRTUALIZE(function(...) return ... end)
 
 local GameMetatable = getrawmetatable and getrawmetatable(game) or {
-	__index = LPH_NO_VIRTUALIZE(function(self, Index)
-		return self[Index]
-	end),
-	__newindex = LPH_NO_VIRTUALIZE(function(self, Index, Value)
-		self[Index] = Value
-	end)
+	__index = LPH_NO_VIRTUALIZE(function(self, Index) return self[Index] end),
+	__newindex = LPH_NO_VIRTUALIZE(function(self, Index, Value) self[Index] = Value end)
 }
 
 local __index = GameMetatable.__index
 local __newindex = GameMetatable.__newindex
 local getrenderproperty, setrenderproperty = getrenderproperty or __index, setrenderproperty or __newindex
+
 local _GetService = __index(game, "GetService")
 local GetService = function(Service)
 	return cloneref(_GetService(game, Service))
@@ -73,42 +63,50 @@ getgenv().ExunysDeveloperAimbot = {
 	DeveloperSettings = {
 		UpdateMode = "RenderStepped",
 		TeamCheckOption = "TeamColor",
-		RainbowSpeed = 1, 
+		RainbowSpeed = 1,
 		DisableWarnings = false
 	},
+
 	Settings = {
 		Enabled = true,
 		TeamCheck = false,
 		AliveCheck = true,
-		WallCheck = false, -- Enabled Visible Check
+		WallCheck = true, -- ENABLED VISIBLE CHECK
+
 		OffsetToMoveDirection = false,
 		OffsetIncrement = 15,
-		Sensitivity = 0, 
-		Sensitivity2 = 1, 
-		LockMode = 1, 
-		LockPart = "Head", 
-		TriggerKey = Enum.KeyCode.K, 
-		Toggle = false 
+
+		Sensitivity = 0,
+		Sensitivity2 = 1,
+
+		LockMode = 1, -- 1 = CFrame; 2 = mousemoverel; 3 = mousemoveabs
+		LockPart = "Head",
+
+		TriggerKey = Enum.KeyCode.K, -- CHANGED TO LETTER K
+		Toggle = false
 	},
+
 	Triggerbot = {
 		Enabled = false,
 		TeamCheck = false,
 		AliveCheck = true,
 		AimLockedCheck = false,
-		Delay = 0 
+		Delay = 0
 	},
+
 	ClosestPlayerTracer = {
 		Enabled = true,
-		Position = 3, 
+		Position = 3,
 		Transparency = 0.5,
 		Thickness = 1,
 		RainbowColor = false,
 		Color = Color3fromRGB(150, 150, 255)
 	},
+
 	FOVSettings = {
-		Enabled = true, 
+		Enabled = true,
 		Visible = true,
-		Radius = 180, 
+		Radius = 180,
 		NumSides = 60,
 		Thickness = 1,
 		Transparency = 1,
@@ -119,19 +117,19 @@ getgenv().ExunysDeveloperAimbot = {
 		OutlineColor = Color3fromRGB(0, 0, 0),
 		LockedColor = Color3fromRGB(255, 150, 150)
 	},
+
 	Blacklisted = {},
 	FOVCircleOutline = Drawingnew("Circle"),
 	FOVCircle = Drawingnew("Circle"),
 	Tracer = Drawingnew("Line")
 }
 
-local Environment, _warn = getgenv().ExunysDeveloperAimbot, clonefunction(warn); warn = function(...)
+local Environment, _warn = getgenv().ExunysDeveloperAimbot, clonefunction(warn)
+warn = function(...)
 	return not Environment.DeveloperSettings.DisableWarnings and _warn(...)
 end
 
-repeat
-	taskwait(0)
-until Environment and Environment.FOVCircle and Environment.FOVCircleOutline
+repeat taskwait(0) until Environment and Environment.FOVCircle and Environment.FOVCircleOutline
 
 setrenderproperty(Environment.FOVCircle, "Visible", false)
 setrenderproperty(Environment.FOVCircleOutline, "Visible", false)
@@ -166,11 +164,10 @@ end)
 local GetClosestPlayer = LPH_NO_VIRTUALIZE(function(Aux)
 	local Settings = Environment.Settings
 	local LockPart = Settings.LockPart
-	local mouseLocation = GetMouseLocation(UserInputService)
 
 	if not Environment.Locked or Aux then
 		RequiredDistance = Environment.FOVSettings.Enabled and Environment.FOVSettings.Radius or 2000
-		Required3DDistance = 10000
+		local Required3DDistance = 10000
 
 		for _, Value in next, GetPlayers(Players) do
 			local Character = __index(Value, "Character")
@@ -181,40 +178,36 @@ local GetClosestPlayer = LPH_NO_VIRTUALIZE(function(Aux)
 
 				if Settings.TeamCheck and __index(Value, TeamCheckOption) == __index(LocalPlayer, TeamCheckOption) then continue end
 				if Settings.AliveCheck and __index(Humanoid, "Health") <= 0 then continue end
-				
-				-- Visible Check implementation
+
 				if Settings.WallCheck then
-					local ObscuringParts = GetPartsObscuringTarget(Camera, PartPosition, {__index(LocalPlayer, "Character"), Character})
-					if #ObscuringParts > 0 then continue end
+					local BlacklistTable = GetDescendants(__index(LocalPlayer, "Character"))
+					for _, _Value in next, GetDescendants(Character) do
+						BlacklistTable[#BlacklistTable + 1] = _Value
+					end
+					if #GetPartsObscuringTarget(Camera, {PartPosition}, BlacklistTable) > 0 then continue end
 				end
 
 				local Vector, OnScreen, Distance = WorldToViewportPoint(Camera, PartPosition)
 				Vector = ConvertVector(Vector)
-				Distance = (mouseLocation - Vector).Magnitude
+				Distance = (GetMouseLocation(UserInputService) - Vector).Magnitude
 				local _3DDistance = (__index(Camera, "CFrame").Position - PartPosition).Magnitude
 
 				if Distance < RequiredDistance and _3DDistance < Required3DDistance and OnScreen then
 					RequiredDistance, Required3DDistance = Distance, _3DDistance
-					if not Aux then
-						Environment.Locked = Value
-					elseif not Running and not Environment.Locked then
-						return Value
-					end
+					if not Aux then Environment.Locked = Value elseif not Running and not Environment.Locked then return Value end
 				end
 			end
 		end
-	elseif (mouseLocation - ConvertVector(WorldToViewportPoint(Camera, __index(__index(__index(Environment.Locked, "Character"), LockPart), "Position")))).Magnitude > RequiredDistance then
+	elseif (GetMouseLocation(UserInputService) - ConvertVector(WorldToViewportPoint(Camera, __index(__index(__index(Environment.Locked, "Character"), LockPart), "Position")))).Magnitude > RequiredDistance then
 		CancelLock()
 	end
 end)
 
 local Load = function()
 	OriginalSensitivity = __index(UserInputService, "MouseDeltaSensitivity")
-	local Settings, Triggerbot, Tracer, FOVCircle, FOVCircleOutline, TracerSettings, FOVSettings, Offset = Environment.Settings, Environment.Triggerbot, Environment.Tracer, Environment.FOVCircle, Environment.FOVCircleOutline, Environment.ClosestPlayerTracer, Environment.FOVSettings
-	local OffsetToMoveDirection, LockPart = Settings.OffsetToMoveDirection, Settings.LockPart
-	local DeveloperSettings = Environment.DeveloperSettings
-	local UpdateMode = DeveloperSettings.UpdateMode
-	local TeamCheckOption = DeveloperSettings.TeamCheckOption
+	local Settings, Triggerbot, Tracer, FOVCircle, FOVCircleOutline, TracerSettings, FOVSettings = Environment.Settings, Environment.Triggerbot, Environment.Tracer, Environment.FOVCircle, Environment.FOVCircleOutline, Environment.ClosestPlayerTracer, Environment.FOVSettings
+	local UpdateMode = Environment.DeveloperSettings.UpdateMode
+	local TeamCheckOption = Environment.DeveloperSettings.TeamCheckOption
 
 	if mouse1press and mouse1release then
 		ServiceConnections.Triggerbot = Connect(__index(RunService, UpdateMode), LPH_NO_VIRTUALIZE(function()
@@ -222,6 +215,7 @@ local Load = function()
 				local Character = Mouse.Target.Parent
 				local Humanoid = FindFirstChildOfClass(Character, "Humanoid")
 				local Player = GetPlayerFromCharacter(Players, Character)
+
 				if Character and Humanoid and Player then
 					if Triggerbot.TeamCheck and __index(Player, TeamCheckOption) == __index(LocalPlayer, TeamCheckOption) then return end
 					if Triggerbot.AliveCheck and __index(Humanoid, "Health") <= 0 then return end
@@ -238,19 +232,14 @@ local Load = function()
 		if ClosestPlayer then
 			setrenderproperty(Tracer, "Visible", true)
 			for Index, Value in next, TracerSettings do
-				if Index == "Color" then continue end
-				if pcall(getrenderproperty, Tracer, Index) then setrenderproperty(Tracer, Index, Value) end
+				if Index ~= "Color" and pcall(getrenderproperty, Tracer, Index) then setrenderproperty(Tracer, Index, Value) end
 			end
 			setrenderproperty(Tracer, "Color", TracerSettings.RainbowColor and GetRainbowColor() or TracerSettings.Color)
-			if TracerSettings.Position == 1 then
-				setrenderproperty(Tracer, "From", Vector2new(CameraViewportSize.X / 2, CameraViewportSize.Y))
-			elseif TracerSettings.Position == 2 then
-				setrenderproperty(Tracer, "From", CameraViewportSize / 2)
-			elseif TracerSettings.Position == 3 then
-				setrenderproperty(Tracer, "From", GetMouseLocation(UserInputService))
-			else
-				TracerSettings.Position = 3
-			end
+			
+			if TracerSettings.Position == 1 then setrenderproperty(Tracer, "From", Vector2new(CameraViewportSize.X / 2, CameraViewportSize.Y))
+			elseif TracerSettings.Position == 2 then setrenderproperty(Tracer, "From", CameraViewportSize / 2)
+			else setrenderproperty(Tracer, "From", GetMouseLocation(UserInputService)) end
+
 			setrenderproperty(Tracer, "To", ConvertVector(WorldToViewportPoint(Camera, __index(__index(ClosestPlayer, "Character")[Settings.LockPart], "Position"))))
 		else
 			setrenderproperty(Tracer, "Visible", false)
@@ -260,8 +249,7 @@ local Load = function()
 	ServiceConnections.RenderSteppedConnection = Connect(__index(RunService, UpdateMode), LPH_NO_VIRTUALIZE(function()
 		if FOVSettings.Enabled and Settings.Enabled then
 			for Index, Value in next, FOVSettings do
-				if Index == "Color" then continue end
-				if pcall(getrenderproperty, FOVCircle, Index) then
+				if Index ~= "Color" and pcall(getrenderproperty, FOVCircle, Index) then
 					setrenderproperty(FOVCircle, Index, Value)
 					setrenderproperty(FOVCircleOutline, Index, Value)
 				end
@@ -278,20 +266,22 @@ local Load = function()
 
 		if Running and Settings.Enabled then
 			GetClosestPlayer()
-			Offset = OffsetToMoveDirection and __index(FindFirstChildOfClass(__index(Environment.Locked, "Character"), "Humanoid"), "MoveDirection") * (mathclamp(Settings.OffsetIncrement, 1, 30) / 10) or Vector3zero
+			local Offset = Settings.OffsetToMoveDirection and __index(FindFirstChildOfClass(__index(Environment.Locked, "Character"), "Humanoid"), "MoveDirection") * (mathclamp(Settings.OffsetIncrement, 1, 30) / 10) or Vector3zero
+
 			if Environment.Locked then
-				local LockedPosition_Vector3 = __index(__index(Environment.Locked, "Character")[LockPart], "Position")
-				local LockedPosition = WorldToViewportPoint(Camera, LockedPosition_Vector3 + Offset)
+				local LockedPos3D = __index(__index(Environment.Locked, "Character")[Settings.LockPart], "Position")
+				local LockedPos2D = WorldToViewportPoint(Camera, LockedPos3D + Offset)
+
 				if Settings.LockMode == 2 then
-					mousemoverel((LockedPosition.X - GetMouseLocation(UserInputService).X) / Settings.Sensitivity2, (LockedPosition.Y - GetMouseLocation(UserInputService).Y) / Settings.Sensitivity2)
+					mousemoverel((LockedPos2D.X - GetMouseLocation(UserInputService).X) / Settings.Sensitivity2, (LockedPos2D.Y - GetMouseLocation(UserInputService).Y) / Settings.Sensitivity2)
 				elseif Settings.LockMode == 3 and mousemoveabs then
-					mousemoveabs(LockedPosition.X, LockedPosition.Y)
+					mousemoveabs(LockedPos2D.X, LockedPos2D.Y)
 				else
 					if Settings.Sensitivity > 0 then
-						Animation = TweenService:Create(Camera, TweenInfonew(Settings.Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFramenew(Camera.CFrame.Position, LockedPosition_Vector3 + Offset)})
+						Animation = TweenService:Create(Camera, TweenInfonew(Settings.Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFramenew(Camera.CFrame.Position, LockedPos3D + Offset)})
 						Animation:Play()
 					else
-						__newindex(Camera, "CFrame", CFramenew(Camera.CFrame.Position, LockedPosition_Vector3 + Offset))
+						__newindex(Camera, "CFrame", CFramenew(Camera.CFrame.Position, LockedPos3D + Offset))
 					end
 					__newindex(UserInputService, "MouseDeltaSensitivity", 0)
 				end
@@ -303,9 +293,8 @@ local Load = function()
 
 	ServiceConnections.InputBeganConnection = Connect(__index(UserInputService, "InputBegan"), LPH_NO_VIRTUALIZE(function(Input)
 		if Typing then return end
-		local TriggerKey, Toggle = Settings.TriggerKey, Settings.Toggle
-		if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == TriggerKey or Input.UserInputType == TriggerKey then
-			if Toggle then
+		if (Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == Settings.TriggerKey) or Input.UserInputType == Settings.TriggerKey then
+			if Settings.Toggle then
 				Running = not Running
 				if not Running then CancelLock() end
 			else
@@ -316,8 +305,7 @@ local Load = function()
 
 	ServiceConnections.InputEndedConnection = Connect(__index(UserInputService, "InputEnded"), LPH_NO_VIRTUALIZE(function(Input)
 		if Typing then return end
-		local TriggerKey = Settings.TriggerKey
-		if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == TriggerKey or Input.UserInputType == TriggerKey then
+		if (Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == Settings.TriggerKey) or Input.UserInputType == Settings.TriggerKey then
 			Running = false; CancelLock()
 		end
 	end))
@@ -327,35 +315,33 @@ end
 ServiceConnections.TypingStartedConnection = Connect(__index(UserInputService, "TextBoxFocused"), function() Typing = true end)
 ServiceConnections.TypingEndedConnection = Connect(__index(UserInputService, "TextBoxFocusReleased"), function() Typing = false end)
 
---// Interactive User Methods
 repeat taskwait(0) until Environment and Load
+
 Environment.Exit = LPH_NO_VIRTUALIZE(function(self)
-	assert(self, "EXUNYS_AIMBOT-V3.Exit: Missing parameter #1 \"self\" <table>.")
 	for Index, _ in next, ServiceConnections do pcall(Disconnect, ServiceConnections[Index]) end
 	Load = nil; ConvertVector = nil; CancelLock = nil; GetClosestPlayer = nil; GetRainbowColor = nil; FixUsername = nil
 	self.FOVCircle:Remove(); self.FOVCircleOutline:Remove(); self.Tracer:Remove()
 	getgenv().ExunysDeveloperAimbot = nil; pcall(collectgarbage, "step", 200)
 end)
+
 Environment.Restart = LPH_NO_VIRTUALIZE(function()
 	for Index, _ in next, ServiceConnections do pcall(Disconnect, ServiceConnections[Index]) end
 	Load()
 end)
+
 Environment.Blacklist = LPH_NO_VIRTUALIZE(function(self, Username)
-	assert(self, "EXUNYS_AIMBOT-V3.Blacklist: Missing parameter #1 \"self\" <table>.")
-	assert(Username, "EXUNYS_AIMBOT-V3.Blacklist: Missing parameter #2 \"Username\" <string>.")
 	Username = FixUsername(Username)
-	assert(Username, "EXUNYS_AIMBOT-V3.Blacklist: User "..Username.." couldn't be found.")
-	self.Blacklisted[#self.Blacklisted + 1] = Username
+	if Username then self.Blacklisted[#self.Blacklisted + 1] = Username end
 end)
+
 Environment.Whitelist = LPH_NO_VIRTUALIZE(function(self, Username)
-	assert(self, "EXUNYS_AIMBOT-V3.Whitelist: Missing parameter #1 \"self\" <table>.")
-	assert(Username, "EXUNYS_AIMBOT-V3.Whitelist: Missing parameter #2 \"Username\" <string>.")
 	Username = FixUsername(Username)
-	assert(Username, "EXUNYS_AIMBOT-V3.Whitelist: User "..Username.." couldn't be found.")
-	local Index = tablefind(self.Blacklisted, Username)
-	assert(Index, "EXUNYS_AIMBOT-V3.Whitelist: User "..Username.." is not blacklisted.")
-	tableremove(self.Blacklisted, Index)
+	if Username then
+		local Index = tablefind(self.Blacklisted, Username)
+		if Index then tableremove(self.Blacklisted, Index) end
+	end
 end)
+
 Environment.GetClosestPlayer = LPH_NO_VIRTUALIZE(function() return GetClosestPlayer(true) end)
 Environment.Load = Load
 setmetatable(Environment, {__call = Load})
